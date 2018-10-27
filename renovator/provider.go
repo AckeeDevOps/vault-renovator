@@ -8,9 +8,9 @@ import (
 )
 
 type TokenProvider struct {
-    BucketName    string
-    FilePaths     []string
-    StorageClient *storage.Client
+  BucketName    string
+  FilePaths     []string
+  StorageClient *storage.Client
 }
 
 // NewTokenProvider constructor
@@ -31,11 +31,11 @@ func NewTokenProvider (bucketName string, filePaths []string) *TokenProvider {
 }
 
 func (e TokenProvider) GetTokens() ([][]byte, error) {
-    res, err := e.getEncryptedBytes()
-    if err != nil {
-      return nil, err
-    }
-    return res, nil
+  res, err := e.getEncryptedBytes()
+  if err != nil {
+    return nil, err
+  }
+  return res, nil
 }
 
 func (e TokenProvider) getEncryptedBytes() ([][]byte, error) {

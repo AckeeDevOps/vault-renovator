@@ -24,7 +24,7 @@ type ProgamOptions struct {
 }
 
 type TokenFileNames struct {
-	Names []string `json:"fileNames"`
+  Names []string `json:"fileNames"`
 }
 
 func main() {
