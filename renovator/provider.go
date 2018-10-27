@@ -21,10 +21,10 @@ func NewTokenProvider (bucketName string, filePaths []string) *TokenProvider {
 
   // initialize google storage client
   ctx := context.Background()
-	client, err := storage.NewClient(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
+  client, err := storage.NewClient(ctx)
+  if err != nil {
+    log.Fatal(err)
+  }
 
   p.StorageClient = client
   return p
@@ -33,8 +33,8 @@ func NewTokenProvider (bucketName string, filePaths []string) *TokenProvider {
 func (e TokenProvider) GetTokens() ([][]byte, error) {
     res, err := e.getEncryptedBytes()
     if err != nil {
-  		return nil, err
-  	}
+      return nil, err
+    }
     return res, nil
 }
 
@@ -47,14 +47,14 @@ func (e TokenProvider) getEncryptedBytes() ([][]byte, error) {
     // obtain files with GCS client
     rc, err := e.StorageClient.Bucket(e.BucketName).Object(v).NewReader(ctx)
     if err != nil {
-  		return nil, err
-  	}
-  	defer rc.Close()
+      return nil, err
+    }
+    defer rc.Close()
 
-  	data, err := ioutil.ReadAll(rc)
-  	if err != nil {
-  		return nil, err
-  	}
+    data, err := ioutil.ReadAll(rc)
+    if err != nil {
+      return nil, err
+    }
 
     // append data to the slice
     results = append(results, data)
