@@ -9,7 +9,7 @@ This code is meant to be running inside the Kubernetes (GKE) pod as a CronJob. T
 
 Please note that vault-renovator is not trying to separate you from the all the hassle with the  Vault. This tool does only one thing - it renews the specified Vault tokens based on the schedule specified in the CronJob manifest file.
 
-## Sample usage
+## Sample usage from the command line
 
 ```
 go run main.go \
