@@ -10,7 +10,6 @@ import (
 
 type Client struct {
   VaultAddress  string
-  VaultToken    string
   RestClient    *resty.Client
 }
 
@@ -30,7 +29,7 @@ type TokenLookupResponse struct {
 }
 
 // NewClient creates a new Client object with pre-created resty client
-func NewClient(vaultAddress string, vaultToken string) *Client {
+func NewClient(vaultAddress string) *Client {
   c := new(Client)
 
   u, err := url.Parse(vaultAddress)
@@ -39,15 +38,27 @@ func NewClient(vaultAddress string, vaultToken string) *Client {
   }
 
   c.VaultAddress = u.Scheme + u.Host
-  c.VaultToken = vaultToken
   c.RestClient = resty.New()
   return c
 }
 
+// CheckOrRenew checks the provided token, it tryes to renew the token only
+// when the current TLL is beyond the TTL provided threshold
+func (c Client) CheckOrRenew(token string, threshold int, increment int) {
+  tokenDetails, err := c.lookupSelf(token)
+  if err != nil {
+    log.Fatal(err)
+  }
+
+  if(tokenDetails.TTL <= threshold) {
+    c.renew(token)
+  }
+}
+
 // LookupSelf returns token details https://www.vaultproject.io/api/auth/token/index.html
-func (c Client) LookupSelf() (*TokenLookupData, error) {
+func (c Client) lookupSelf(token string) (*TokenLookupData, error) {
   resp, err := c.RestClient.R().
-    SetHeader("X-Vault-Token", c.VaultToken).
+    SetHeader("X-Vault-Token", token).
     Get(c.VaultAddress + "/auth/token/lookup-self")
     if err != nil {
       return nil, err
@@ -57,6 +68,10 @@ func (c Client) LookupSelf() (*TokenLookupData, error) {
     lookupReponse := TokenLookupResponse{}
     json.Unmarshal(resp.Body(), &lookupReponse)
     return &lookupReponse.Data, nil
+}
+
+func (c Client) renew(token string) (*TokenLookupData, error) {
+  return nil, nil // tbd
 }
 
 // DisableTLS disables TLS as deccribed at https://godoc.org/github.com/go-resty/resty#SetTLSClientConfig
