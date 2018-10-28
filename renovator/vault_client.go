@@ -17,12 +17,12 @@ type Client struct {
 type TokenLookupData struct {
   Accessor      string `json:"accessor"`
   CreationTime  int `json:"creation_time"`
-  CreationTtl   int `json:"creation_ttl"`
+  CreationTTL   int `json:"creation_ttl"`
   DisplayName   string `json:"display_name"`
   ExpireTime    string `json:"expire_time"`
   IssueTime     string `json:"issue_time"`
   Renewable     bool `json:"renewable"`
-  Ttl           int `json:"ttl"`
+  TTL           int `json:"ttl"`
 }
 
 type TokenLookupResponse struct {
@@ -58,7 +58,7 @@ func (c Client) LookupSelf() (*TokenLookupData, error) {
     return &lookupReponse.Data, nil
 }
 
-func (c Client) DisableTls() {
+func (c Client) DisableTLS() {
   c.RestClient.SetTLSClientConfig(&tls.Config{ InsecureSkipVerify: true })
 }
 
