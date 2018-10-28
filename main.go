@@ -28,6 +28,7 @@ type TokenFileNames struct {
 }
 
 func main() {
+  log.Print("Running vault-renovator ...")
   args := handleInput(os.Args[1:])
   decryptor := getDecryptor(args)
   tokens := getTokens(args)
