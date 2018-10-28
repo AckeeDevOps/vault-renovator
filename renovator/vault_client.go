@@ -48,7 +48,7 @@ func (c Client) LookupSelf() (*TokenLookupData, error) {
     if err != nil {
       return nil, err
     }
-    checkStatusCode(resp.StatusCode())
+    checkStatusCode(resp.StatusCode(), resp.Body())
 
     lookupReponse := TokenLookupResponse{}
     json.Unmarshal(resp.Body(), &lookupReponse)
