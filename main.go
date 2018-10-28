@@ -28,6 +28,9 @@ type TokenFileNames struct {
 }
 
 func main() {
+  //disable timestamp in the log output
+  log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
+
   log.Print("Running vault-renovator ...")
   args := handleInput(os.Args[1:])
   decryptor := getDecryptor(args)
