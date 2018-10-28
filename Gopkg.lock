@@ -73,7 +73,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:1ae047ded1ddcbe0eca8b0772e3ff2c10e354db4c42c65b96d0386883e63904d"
+  digest = "1:e1755c1346c4d575b8d898a77d294ff88f128a0143cf83a2ecfb8a4f2d598fb9"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -83,6 +83,7 @@
     "http2/hpack",
     "idna",
     "internal/timeseries",
+    "publicsuffix",
     "trace",
   ]
   pruneopts = "UT"
@@ -220,6 +221,14 @@
   revision = "2e463a05d100327ca47ac218281906921038fd95"
   version = "v1.16.0"
 
+[[projects]]
+  digest = "1:559e4b9d3613025c3b53aff0aa15f41ed6fa82c24cd06e56932b9f0df4ba9ebb"
+  name = "gopkg.in/resty.v1"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "92a651cff2687ad3083767fb04b6f53d258b546c"
+  version = "v1.10.1"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
@@ -228,6 +237,7 @@
     "github.com/jessevdk/go-flags",
     "golang.org/x/oauth2/google",
     "google.golang.org/api/cloudkms/v1",
+    "gopkg.in/resty.v1",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
