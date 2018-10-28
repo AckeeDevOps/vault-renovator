@@ -3,7 +3,7 @@ package renovator
 import (
   "log"
   "net/url"
-  //"encoding/json"
+  "encoding/json"
   "gopkg.in/resty.v1"
 )
 
@@ -41,12 +41,22 @@ func NewClient(vaultAddress string, vaultToken string) *Client {
   return c
 }
 
-func (c Client) LookupSelf() (string, error) {
-  _, err := resty.R().
+func (c Client) LookupSelf() (*TokenLookupData, error) {
+  resp, err := resty.R().
     SetHeader("X-Vault-Token", c.VaultToken).
     Get(c.VaultAddress + "/auth/token/lookup-self")
     if err != nil {
-      return "", err
+      return nil, err
     }
-    return "", nil // delete me!
+    checkStatusCode(resp.StatusCode())
+
+    lookupReponse := TokenLookupResponse{}
+    json.Unmarshal(resp.Body(), &lookupReponse)
+    return &lookupReponse.Data, nil
+}
+
+func checkStatusCode(statusCode int) {
+  if(statusCode != 200) {
+    log.Fatal("Wrong http status code.")
+  }
 }
