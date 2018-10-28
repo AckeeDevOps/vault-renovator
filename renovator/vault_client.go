@@ -3,6 +3,7 @@ package renovator
 import (
   "log"
   "net/url"
+  "crypto/tls"
   "encoding/json"
   "gopkg.in/resty.v1"
 )
@@ -10,6 +11,7 @@ import (
 type Client struct {
   VaultAddress  string
   VaultToken    string
+  RestClient    *resty.Client
 }
 
 type TokenLookupData struct {
@@ -38,11 +40,12 @@ func NewClient(vaultAddress string, vaultToken string) *Client {
 
   c.VaultAddress = u.Scheme + u.Host
   c.VaultToken = vaultToken
+  c.RestClient = resty.New()
   return c
 }
 
 func (c Client) LookupSelf() (*TokenLookupData, error) {
-  resp, err := resty.R().
+  resp, err := c.RestClient.R().
     SetHeader("X-Vault-Token", c.VaultToken).
     Get(c.VaultAddress + "/auth/token/lookup-self")
     if err != nil {
@@ -53,6 +56,10 @@ func (c Client) LookupSelf() (*TokenLookupData, error) {
     lookupReponse := TokenLookupResponse{}
     json.Unmarshal(resp.Body(), &lookupReponse)
     return &lookupReponse.Data, nil
+}
+
+func (c Client) DisableTls() {
+  c.RestClient.SetTLSClientConfig(&tls.Config{ InsecureSkipVerify: true })
 }
 
 func checkStatusCode(code int, body []byte) {
