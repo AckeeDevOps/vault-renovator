@@ -19,6 +19,7 @@ type TokenLookupData struct {
   DisplayName   string `json:"display_name"`
   ExpireTime    string `json:"expire_time"`
   IssueTime     string `json:"issue_time"`
+  Renewable     bool `json:"renewable"`
   Ttl           int `json:"ttl"`
 }
 
