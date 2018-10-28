@@ -55,8 +55,8 @@ func (c Client) LookupSelf() (*TokenLookupData, error) {
     return &lookupReponse.Data, nil
 }
 
-func checkStatusCode(statusCode int) {
-  if(statusCode != 200) {
-    log.Fatal("Wrong http status code.")
+func checkStatusCode(code int, body []byte) {
+  if(code != 200) {
+    log.Fatal("Wrong http status code: " + string(body[:]))
   }
 }
