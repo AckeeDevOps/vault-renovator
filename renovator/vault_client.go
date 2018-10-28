@@ -29,7 +29,6 @@ type TokenLookupResponse struct {
   Data TokenLookupData `json:"data"`
 }
 
-
 func NewClient(vaultAddress string, vaultToken string) *Client {
   c := new(Client)
 
@@ -44,6 +43,7 @@ func NewClient(vaultAddress string, vaultToken string) *Client {
   return c
 }
 
+// LookupSelf returns token details https://www.vaultproject.io/api/auth/token/index.html
 func (c Client) LookupSelf() (*TokenLookupData, error) {
   resp, err := c.RestClient.R().
     SetHeader("X-Vault-Token", c.VaultToken).
