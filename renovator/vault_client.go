@@ -29,6 +29,7 @@ type TokenLookupResponse struct {
   Data TokenLookupData `json:"data"`
 }
 
+// NewClient creates a new Client object with pre-created resty client
 func NewClient(vaultAddress string, vaultToken string) *Client {
   c := new(Client)
 
@@ -51,7 +52,7 @@ func (c Client) LookupSelf() (*TokenLookupData, error) {
     if err != nil {
       return nil, err
     }
-    checkStatusCode(resp.StatusCode(), resp.Body())
+    checkStatusCodeGet(resp.StatusCode(), resp.Body())
 
     lookupReponse := TokenLookupResponse{}
     json.Unmarshal(resp.Body(), &lookupReponse)
@@ -63,7 +64,8 @@ func (c Client) DisableTLS() {
   c.RestClient.SetTLSClientConfig(&tls.Config{ InsecureSkipVerify: true })
 }
 
-func checkStatusCode(code int, body []byte) {
+// checkStatusCodeGet checks 200 status code for GET requests
+func checkStatusCodeGet(code int, body []byte) {
   if(code != 200) {
     log.Fatal("Wrong http status code: " + string(body[:]))
   }
