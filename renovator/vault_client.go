@@ -58,6 +58,7 @@ func (c Client) LookupSelf() (*TokenLookupData, error) {
     return &lookupReponse.Data, nil
 }
 
+// DisableTLS disables TLS as deccribed at https://godoc.org/github.com/go-resty/resty#SetTLSClientConfig
 func (c Client) DisableTLS() {
   c.RestClient.SetTLSClientConfig(&tls.Config{ InsecureSkipVerify: true })
 }
