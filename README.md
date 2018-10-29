@@ -107,10 +107,10 @@ go run main.go \
     --from-file=./key.json
   ```
 
-16. Update environment variables in the kubernetes/deployment.yaml
+16. Update environment variables in the examples/kubernetes/cronjob.yaml
 
 15. Deploy the Kubernetes manifest
 
   ```
-  kubectl apply -f kubernetes/deployment.yaml
+  kubectl apply -f examples/kubernetes/cronjob.yaml
   ```
