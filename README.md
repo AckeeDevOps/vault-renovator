@@ -103,5 +103,14 @@ go run main.go \
 13. Create a Secret from downloaded SA key
 
   ```
-  
+  kubectl create secret generic vault-renovator-sa \
+    --from-file=./key.json
+  ```
+
+16. Update environment variables in the kubernetes/deployment.yaml
+
+15. Deploy the Kubernetes manifest
+
+  ```
+  kubectl apply -f kubernetes/deployment.yaml
   ```
