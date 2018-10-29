@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: vault-renovator
 spec:
-  schedule: "*/5 * * * *" # At every 5th minute
+  schedule: "0 7 * * *" # At 7AM
   concurrencyPolicy: Replace
   jobTemplate:
     spec:
