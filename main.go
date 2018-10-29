@@ -6,6 +6,7 @@ import(
   "strings"
   "io/ioutil"
   "encoding/json"
+  "github.com/nlopes/slack"
   "github.com/jessevdk/go-flags"
   "github.com/vranystepan/vault-renovator/renovator"
 )
@@ -24,7 +25,7 @@ type ProgamOptions struct {
   // JSON file with remote filenames
   SpecsPath string `long:"token-specs" description:"" required:"yes"`
   // Slack stuff
-  WebhookUrl string `long:"webhook-url" description:"" required:"yes"`
+  SlackWebhookUrl string `long:"slack-webhook-url" description:"" required:"no"`
 }
 
 type TokenFileNames struct {
@@ -46,8 +47,24 @@ func main() {
   }
 
   client := renovator.NewClient(args.VaultAddr)
+  statusList := []renovator.OutputRenewalStatus{}
   for _, v := range tokensPlainText {
-    client.CheckOrRenew(v, args.ThresholdTTL, args.IncrementTTL)
+    status := client.CheckOrRenew(v, args.ThresholdTTL, args.IncrementTTL)
+    statusList = append(statusList, status)
+  }
+
+  // notify slack if SlackWebhookUrl has been set
+  if(args.SlackWebhookUrl != ""){
+    notifySlackFinal(statusList, args.SlackWebhookUrl)
+  }
+}
+
+func notifySlackFinal(statusList []renovator.OutputRenewalStatus, url string) {
+  attachments := statusListToAttachments(statusList)
+  msg := slack.WebhookMessage{Text: "Vault token renewal status", Attachments: attachments}
+  err := slack.PostWebhook(url, &msg)
+  if err != nil {
+    log.Fatal(err)
   }
 }
 
@@ -106,4 +123,28 @@ func decryptTokens(tokens [][]byte, decryptor *renovator.Decryptor) ([]string, e
     results = append(results, strings.TrimSpace(string(decodedToken[:])))
   }
   return results, nil
+}
+
+func statusListToAttachments(list []renovator.OutputRenewalStatus) []slack.Attachment{
+  attachments := []slack.Attachment{}
+  for _, v := range list {
+    color := ""
+    switch v.StatusMessage {
+      case "RENEWAL_DONE": color = "#008000"
+      case "RENEWAL_NOT_NEEDED": color = "#008000"
+      case "RENEWAL_FAILED": color = "#FF0000"
+      default: color = "#808080"
+    }
+    msgBody, err := json.Marshal(v.TokenDetails)
+    if err != nil {
+      return nil
+    }
+    attachment := slack.Attachment{
+      Color: color,
+      Title: v.TokenDetails.Accessor,
+      Text: string(msgBody[:]),
+    }
+    attachments = append(attachments, attachment)
+  }
+  return attachments
 }
