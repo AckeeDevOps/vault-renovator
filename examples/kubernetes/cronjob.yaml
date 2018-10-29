@@ -1,0 +1,64 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: vault-renovator
+spec:
+  schedule: "*/5 * * * *" # At every 5th minute
+  concurrencyPolicy: Replace
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: renovator
+            image: ackee/vault-renovator
+            command:
+              - "./app"
+              - "--gcp-project=$(GCP_PROJECT_ID)"
+              - "--gcp-location=$(GCP_KEY_RING_LOCATION)"
+              - "--keyring=$(GCP_KEY_RING_NAME)"
+              - "--key=$(GCP_KEY_NAME)"
+              - "--bucket=$(GCP_STORAGE_BUCKET_NAME)"
+              - "--vault-url=$(VAULT_ADDR)"
+              - "--token-specs=$(TOKEN_SPECS_PATH)"
+              - "--slack-webhook-url=$(SLACK_WEBHOOK_ULR)"
+              - "--ttl-threshold=$(TTL_THRESHOLD)"
+              - "--ttl-increment=$(TTL_INCREMENT)"
+            # Change these values or refer them to the secret/ConfigMap
+            env:
+              - name: GOOGLE_APPLICATION_CREDENTIALS
+                value: /etc/secrets/gcp/key.json
+              - name: VAULT_ADDR
+                value: https://vault.yourdomain.co.uk
+              - name: GCP_PROJECT_ID
+                value: test-cloud-01-123456
+              - name: GCP_KEY_RING_LOCATION
+                value: europe-west3
+              - name: GCP_KEY_RING_NAME
+                value: key-ring
+              - name: GCP_KEY_NAME
+                value: key01
+              - name: GCP_STORAGE_BUCKET_NAME
+                value: my-gcs-bucket-name01
+              - name: TOKEN_SPECS_PATH
+                value: /etc/configmaps/vault-renovator/specs.json
+              - name: SLACK_WEBHOOK_ULR
+                value: https://hooks.slack.com/services/your-secret-webhook-url
+              - name: TTL_THRESHOLD
+                value: "432000"
+              - name: TTL_INCREMENT
+                value: "86400"
+            volumeMounts:
+              - name: vault-renovator-sa-volume
+                mountPath: /etc/secrets/gcp/
+              - name: vault-renovator-config-volume
+                mountPath: /etc/configmaps/vault-renovator/
+          # Don't forget to create secret with SA upfront
+          volumes:
+            - name: vault-renovator-sa-volume
+              secret:
+                secretName: vault-renovator-sa
+            - name: vault-renovator-config-volume
+              configMap:
+                name: vault-renovator-config

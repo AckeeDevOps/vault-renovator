@@ -97,7 +97,7 @@ go run main.go \
 
   ```
   kubectl create configmap vault-renovator-config \
-    --from-file=./file.json
+    --from-file=specs.json=./file.json
   ```
 
 13. Create a Secret from downloaded SA key
