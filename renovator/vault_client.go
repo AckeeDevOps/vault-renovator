@@ -40,6 +40,11 @@ type RenewalRequest struct {
   Increment int `json:"increment"`
 }
 
+type OutputRenewalStatus {
+  StatusMessage string
+  TokenDetails TokenLookupData
+}
+
 // NewClient creates a new Client object with pre-created resty client
 func NewClient(vaultAddress string) *Client {
   c := new(Client)
@@ -56,12 +61,13 @@ func NewClient(vaultAddress string) *Client {
 
 // CheckOrRenew checks the provided token, it tryes to renew the token only
 // when the current TLL is beyond the TTL provided threshold
-func (c Client) CheckOrRenew(token string, threshold int, increment int) {
+func (c Client) CheckOrRenew(token string, threshold int, increment int) OutputRenewalStatus {
   tokenDetails, err := c.lookupSelf(token)
   if err != nil {
     log.Fatal(err)
   }
 
+  // do not renew tokens with sufficient TTL
   if(tokenDetails.TTL <= threshold) {
     log.Printf(msgStartRenewal, token[0:7], (tokenDetails.TTL / 60 / 60 / 24) , increment)
 
@@ -72,12 +78,17 @@ func (c Client) CheckOrRenew(token string, threshold int, increment int) {
     if err != nil {
       log.Fatal(err)
     }
-    compareTTL(token, tokenDetails.TTL, tokenDetailsNew.TTL)
+    if(compareTTL(token, tokenDetails.TTL, tokenDetailsNew.TTL)) {
+      return OutputRenewalStatus{StatusMessage: "RENEWAL_DONE", TokenDetails: tokenDetailsNew}
+    } else {
+      return OutputRenewalStatus{StatusMessage: "RENEWAL_FAILED", TokenDetails: tokenDetailsNew}
+    }
 
   } else {
     days := tokenDetails.TTL / 60 / 60 / 24
     aboveThreshold := (tokenDetails.TTL - threshold) / 60 / 60 / 24
     log.Printf(msgRenewalNotNeeded, token[0:7], days, aboveThreshold)
+    return OutputRenewalStatus{StatusMessage: "RENEWAL_NOT_NEEDED", TokenDetails: tokenDetails}
   }
 }
 
