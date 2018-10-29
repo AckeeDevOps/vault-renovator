@@ -120,6 +120,7 @@ func (c Client) DisableTLS() {
 }
 
 // checkStatusCodeGet checks 200 status code for GET and POST requests
+// code 200 is valid for both endpoints used in this context
 func checkStatusCode(code int, body []byte) {
   if(code != 200) {
     log.Fatal("Wrong http status code: " + string(body[:]))
