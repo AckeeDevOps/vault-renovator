@@ -93,27 +93,27 @@ func (c Client) CheckOrRenew(token string, threshold int, increment int) OutputR
 }
 
 // LookupSelf returns token details https://www.vaultproject.io/api/auth/token/index.html
-func (c Client) lookupSelf(token string) (*TokenLookupData, error) {
+func (c Client) lookupSelf(token string) (TokenLookupData, error) {
   resp, err := c.RestClient.R().
     SetHeader("X-Vault-Token", token).
     Get(c.VaultAddress + "/v1/auth/token/lookup-self")
     if err != nil {
-      return nil, err
+      return TokenLookupData{}, err
     }
     checkStatusCode(resp.StatusCode(), resp.Body())
 
     lookupReponse := TokenLookupResponse{}
     json.Unmarshal(resp.Body(), &lookupReponse)
-    return &lookupReponse.Data, nil
+    return lookupReponse.Data, nil
 }
 
-func (c Client) renew(token string, increment int) (*TokenLookupData, error) {
+func (c Client) renew(token string, increment int) (TokenLookupData, error) {
   resp, err := c.RestClient.R().
   SetHeader("X-Vault-Token", token).
   SetBody(RenewalRequest{Increment: increment}).
   Post(c.VaultAddress + "/v1/auth/token/renew-self")
   if err != nil {
-    return nil, err
+    return TokenLookupData{}, err
   }
   checkStatusCode(resp.StatusCode(), resp.Body())
 
