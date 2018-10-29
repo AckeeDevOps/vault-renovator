@@ -1,4 +1,5 @@
 FROM golang:1.11.1-alpine3.8 AS builder
+MAINTAINER stepan.vrany@ackee.cz
 WORKDIR /go/src/github.com/vranystepan/vault-renovator
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
