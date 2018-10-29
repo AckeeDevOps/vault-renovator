@@ -130,6 +130,7 @@ func decryptTokens(tokens [][]byte, decryptor *renovator.Decryptor) ([]string, e
 func statusListToAttachments(list []renovator.OutputRenewalStatus) []slack.Attachment{
   attachments := []slack.Attachment{}
   for _, v := range list {
+
     color := ""
     switch v.StatusMessage {
       case "RENEWAL_DONE": color = "#008000"
@@ -137,16 +138,21 @@ func statusListToAttachments(list []renovator.OutputRenewalStatus) []slack.Attac
       case "RENEWAL_FAILED": color = "#FF0000"
       default: color = "#808080"
     }
+
     msg :=  "display name: %s\n" +
             "expire time: %s\n" +
             "issue time: %s\n" +
             "current TTL: %d\n"
 
-    attachment := slack.Attachment{
-      Color: color,
-      Title: v.TokenDetails.Accessor,
-      Text: fmt.Sprintf(msg, v.TokenDetails.DisplayName, v.TokenDetails.ExpireTime, v.TokenDetails.IssueTime, v.TokenDetails.TTL),
-    }
+    msg = fmt.Sprintf(
+      msg,
+      v.TokenDetails.DisplayName,
+      v.TokenDetails.ExpireTime,
+      v.TokenDetails.IssueTime,
+      v.TokenDetails.TTL,
+    )
+
+    attachment := slack.Attachment{Color: color, Title: v.TokenDetails.Accessor, Text: msg}
     attachments = append(attachments, attachment)
   }
   return attachments
