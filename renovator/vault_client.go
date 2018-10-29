@@ -37,7 +37,7 @@ func NewClient(vaultAddress string) *Client {
     log.Fatal(err)
   }
 
-  c.VaultAddress = u.Scheme + u.Host
+  c.VaultAddress = u.Scheme + "://" + u.Host
   c.RestClient = resty.New()
   return c
 }
@@ -59,7 +59,7 @@ func (c Client) CheckOrRenew(token string, threshold int, increment int) {
 func (c Client) lookupSelf(token string) (*TokenLookupData, error) {
   resp, err := c.RestClient.R().
     SetHeader("X-Vault-Token", token).
-    Get(c.VaultAddress + "/auth/token/lookup-self")
+    Get(c.VaultAddress + "/v1/auth/token/lookup-self")
     if err != nil {
       return nil, err
     }
