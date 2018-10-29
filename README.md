@@ -3,6 +3,10 @@
 This repository will become a Docker image for the automatic Vault token
 renewal. I work hard to finish it ASAP as I really need this in my production infrastructure 😂
 
+## Current status
+At the moment we're in the "functional preview" phase. It does its job but it has to be under
+strict supervision. The code will be updated according to findings from this phase.
+
 ## Purpose
 
 This code is meant to be running inside the Kubernetes (GKE) pod as a CronJob. This solution is exclusively using Google Cloud Platform, porting to different platforms would most likely require a great slaughter.
