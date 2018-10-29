@@ -127,10 +127,10 @@ func checkStatusCode(code int, body []byte) {
 }
 
 func compareTTL(token string, old int, new int) bool {
-  if(new > old) {
-    log.Printf(msgRenewalSuccessful, token[0:7], new, old)
-  } else {
-    log.Printf(msgRenewalFailed, token[0:0], new, old)
+  msg := msgRenewalSuccessful
+  if(new <= old) {
+    msg = msgRenewalFailed
   }
+  log.Printf(msg, token[0:7], new, old)
   return (new > old)
 }
