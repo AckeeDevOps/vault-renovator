@@ -8,9 +8,13 @@ import (
   "gopkg.in/resty.v1"
 )
 
-const msgRenewalNotNeeded = "%s... does not need renewal. It will expire in ~%d days. " +
-                            "It's %d days above the threshold."
-const msgStartRenewal = "%s... is going to be renewed. Increment will be %d."
+const msgRenewalNotNeeded =   "%s... does not need renewal. It will expire in ~%d days. " +
+                              "It's %d days above the threshold."
+const msgStartRenewal =       "%s... will expire in %d days. It's going to be renewed. " +
+                              "Increment will be %d seconds."
+const msgRenewalSuccessful =  "%s... has been renewed. New TTL is %d (it was %d before)."
+const msgRenewalFailed =      "%s... has not been renewed. New TTL (%d) is not greater than " +
+                              "the old one (%d)."
 
 type Client struct {
   VaultAddress  string
@@ -59,11 +63,17 @@ func (c Client) CheckOrRenew(token string, threshold int, increment int) {
   }
 
   if(tokenDetails.TTL <= threshold) {
-    log.Printf(msgStartRenewal, token[0:7], increment)
-    c.renew(token, increment)
+    log.Printf(msgStartRenewal, token[0:7], (tokenDetails.TTL / 60 / 60 / 24) , increment)
+
+    // it seems that increment is not increment but total TTL
+    // hence we're appending increment to the current TTL
+    // tested with Vault v0.11.4
+    tokenDetailsNew, err := c.renew(token, tokenDetails.TTL + increment)
     if err != nil {
       log.Fatal(err)
     }
+    compareTTL(token, tokenDetails.TTL, tokenDetailsNew.TTL)
+
   } else {
     days := tokenDetails.TTL / 60 / 60 / 24
     aboveThreshold := (tokenDetails.TTL - threshold) / 60 / 60 / 24
@@ -114,4 +124,13 @@ func checkStatusCode(code int, body []byte) {
   if(code != 200) {
     log.Fatal("Wrong http status code: " + string(body[:]))
   }
+}
+
+func compareTTL(token string, old int, new int) bool {
+  if(new > old) {
+    log.Printf(msgRenewalSuccessful, token[0:7], new, old)
+  } else {
+    log.Printf(msgRenewalFailed, token[0:0], new, old)
+  }
+  return (new > old)
 }
