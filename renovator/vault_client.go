@@ -40,7 +40,7 @@ type RenewalRequest struct {
   Increment int `json:"increment"`
 }
 
-type OutputRenewalStatus {
+type OutputRenewalStatus struct {
   StatusMessage string
   TokenDetails TokenLookupData
 }
