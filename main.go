@@ -52,8 +52,8 @@ func notifySlackFinal(statusList []renovator.OutputRenewalStatus, url string) {
   }
 }
 
-func handleInput(args []string) *ProgamOptions {
-  opts := renovator.ProgamOptions{}
+func handleInput(args []string) *renovator.ProgramOptions {
+  opts := renovator.ProgramOptions{}
   parser := flags.NewParser(&opts, (flags.HelpFlag | flags.PassDoubleDash))
   _, err := parser.ParseArgs(args);
   if err != nil {
@@ -79,7 +79,7 @@ func handleSpecsFile(path string) []string {
   return fileNames.Names
 }
 
-func getTokens(args *ProgamOptions) [][]byte {
+func getTokens(args *renovator.ProgramOptions) [][]byte {
   fileNames := handleSpecsFile(args.SpecsPath)
   provider := renovator.NewTokenProvider(args.Bucket, fileNames)
   tokens, err := provider.GetTokens()
@@ -89,7 +89,7 @@ func getTokens(args *ProgamOptions) [][]byte {
   return tokens
 }
 
-func getDecryptor(args *ProgamOptions) *renovator.Decryptor {
+func getDecryptor(args *renovator.ProgramOptions) *renovator.Decryptor {
   decryptor, err := renovator.NewDecryptor(args.ProjectID, args.Location, args.Keyring, args.Key)
   if err != nil {
     log.Fatal(err) //stop here

@@ -1,6 +1,6 @@
 package renovator
 
-type ProgamOptions struct {
+type ProgramOptions struct {
   // GCP stuff
   ProjectID       string  `long:"gcp-project" description:"" required:"yes"`
   Location        string  `long:"gcp-location" description:"" required:"yes"`
