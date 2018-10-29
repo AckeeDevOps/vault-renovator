@@ -125,7 +125,8 @@ func statusListToAttachments(list []renovator.OutputRenewalStatus) []slack.Attac
     msg :=  "display name: %s\n" +
             "expire time: %s\n" +
             "issue time: %s\n" +
-            "current TTL: %d\n"
+            "current TTL: %d\n" +
+            "current status: %s"
 
     msg = fmt.Sprintf(
       msg,
@@ -133,6 +134,7 @@ func statusListToAttachments(list []renovator.OutputRenewalStatus) []slack.Attac
       v.TokenDetails.ExpireTime,
       v.TokenDetails.IssueTime,
       v.TokenDetails.TTL,
+      v.StatusMessage,
     )
 
     attachment := slack.Attachment{Color: color, Title: v.TokenDetails.Accessor, Text: msg}
