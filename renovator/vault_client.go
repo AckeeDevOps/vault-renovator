@@ -8,6 +8,10 @@ import (
   "gopkg.in/resty.v1"
 )
 
+const msgRenewalNotNeeded = "%s... does not need renewal. It will expire in ~%d days. " +
+                            "It's %d days above the threshold."
+const msgStartRenewal = "%s... is going to be renewed. Increment will be %d."
+
 type Client struct {
   VaultAddress  string
   RestClient    *resty.Client
@@ -26,6 +30,10 @@ type TokenLookupData struct {
 
 type TokenLookupResponse struct {
   Data TokenLookupData `json:"data"`
+}
+
+type RenewalRequest struct {
+  Increment int `json:"increment"`
 }
 
 // NewClient creates a new Client object with pre-created resty client
@@ -51,7 +59,15 @@ func (c Client) CheckOrRenew(token string, threshold int, increment int) {
   }
 
   if(tokenDetails.TTL <= threshold) {
-    c.renew(token)
+    log.Printf(msgStartRenewal, token[0:7], increment)
+    c.renew(token, increment)
+    if err != nil {
+      log.Fatal(err)
+    }
+  } else {
+    days := tokenDetails.TTL / 60 / 60 / 24
+    aboveThreshold := (tokenDetails.TTL - threshold) / 60 / 60 / 24
+    log.Printf(msgRenewalNotNeeded, token[0:7], days, aboveThreshold)
   }
 }
 
@@ -63,15 +79,29 @@ func (c Client) lookupSelf(token string) (*TokenLookupData, error) {
     if err != nil {
       return nil, err
     }
-    checkStatusCodeGet(resp.StatusCode(), resp.Body())
+    checkStatusCode(resp.StatusCode(), resp.Body())
 
     lookupReponse := TokenLookupResponse{}
     json.Unmarshal(resp.Body(), &lookupReponse)
     return &lookupReponse.Data, nil
 }
 
-func (c Client) renew(token string) (*TokenLookupData, error) {
-  return nil, nil // tbd
+func (c Client) renew(token string, increment int) (*TokenLookupData, error) {
+  resp, err := c.RestClient.R().
+  SetHeader("X-Vault-Token", token).
+  SetBody(RenewalRequest{Increment: increment}).
+  Post(c.VaultAddress + "/v1/auth/token/renew-self")
+  if err != nil {
+    return nil, err
+  }
+  checkStatusCode(resp.StatusCode(), resp.Body())
+
+  // get token details again
+  tokenDetails, err := c.lookupSelf(token)
+  if err != nil {
+    log.Fatal(err)
+  }
+  return tokenDetails, nil
 }
 
 // DisableTLS disables TLS as deccribed at https://godoc.org/github.com/go-resty/resty#SetTLSClientConfig
@@ -79,8 +109,8 @@ func (c Client) DisableTLS() {
   c.RestClient.SetTLSClientConfig(&tls.Config{ InsecureSkipVerify: true })
 }
 
-// checkStatusCodeGet checks 200 status code for GET requests
-func checkStatusCodeGet(code int, body []byte) {
+// checkStatusCodeGet checks 200 status code for GET and POST requests
+func checkStatusCode(code int, body []byte) {
   if(code != 200) {
     log.Fatal("Wrong http status code: " + string(body[:]))
   }
