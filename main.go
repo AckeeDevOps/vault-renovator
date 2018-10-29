@@ -3,6 +3,7 @@ package main
 import(
   "os"
   "log"
+  "fmt"
   "strings"
   "io/ioutil"
   "encoding/json"
@@ -125,6 +126,7 @@ func decryptTokens(tokens [][]byte, decryptor *renovator.Decryptor) ([]string, e
   return results, nil
 }
 
+// transform vault client output to the Slack Attachments
 func statusListToAttachments(list []renovator.OutputRenewalStatus) []slack.Attachment{
   attachments := []slack.Attachment{}
   for _, v := range list {
@@ -135,14 +137,15 @@ func statusListToAttachments(list []renovator.OutputRenewalStatus) []slack.Attac
       case "RENEWAL_FAILED": color = "#FF0000"
       default: color = "#808080"
     }
-    msgBody, err := json.Marshal(v.TokenDetails)
-    if err != nil {
-      return nil
-    }
+    msg :=  "display name: %s\n" +
+            "expire time: %s\n" +
+            "issue time: %s\n" +
+            "current TTL: %d\n"
+
     attachment := slack.Attachment{
       Color: color,
       Title: v.TokenDetails.Accessor,
-      Text: string(msgBody[:]),
+      Text: fmt.Sprintf(msg, v.TokenDetails.DisplayName, v.TokenDetails.ExpireTime, v.TokenDetails.IssueTime, v.TokenDetails.TTL),
     }
     attachments = append(attachments, attachment)
   }
