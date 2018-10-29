@@ -41,8 +41,8 @@ type RenewalRequest struct {
 }
 
 type OutputRenewalStatus struct {
-  StatusMessage string
-  TokenDetails TokenLookupData
+  StatusMessage string `json:"status"`
+  TokenDetails TokenLookupData `json:"tokenDetails"`
 }
 
 // NewClient creates a new Client object with pre-created resty client
