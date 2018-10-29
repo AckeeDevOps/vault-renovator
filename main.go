@@ -19,6 +19,8 @@ type ProgamOptions struct {
   Bucket string `long:"bucket" description:"" required:"yes"`
   // Vault stuff
   VaultAddr string `long:"vault-url" description:"" required:"yes"`
+  ThresholdTTL int `long:"ttl-threshold" description:"" required:"no" default:"432000"` // 5 days
+  IncrementTTL int `long:"ttl-increment" description:"" required:"no" default:"86400"` // 1 day
   // JSON file with remote filenames
   SpecsPath string `long:"token-specs" description:"" required:"yes"`
 }
@@ -36,9 +38,14 @@ func main() {
   decryptor := getDecryptor(args)
   tokens := getTokens(args)
 
-  _, err := decryptTokens(tokens, decryptor) // start here
+  tokensPlainText, err := decryptTokens(tokens, decryptor) // start here
   if err != nil {
     log.Fatal(err)
+  }
+
+  client := renovator.NewClient(args.VaultAddr)
+  for _, v := range tokensPlainText {
+    client.CheckOrRenew(v, args.ThresholdTTL, args.IncrementTTL)
   }
 }
 
