@@ -23,6 +23,8 @@ type ProgamOptions struct {
   IncrementTTL int `long:"ttl-increment" description:"" required:"no" default:"86400"` // 1 day
   // JSON file with remote filenames
   SpecsPath string `long:"token-specs" description:"" required:"yes"`
+  // Slack stuff
+  WebhookUrl string `long:"webhook-url" description:"" required:"yes"`
 }
 
 type TokenFileNames struct {
