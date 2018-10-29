@@ -1,7 +1,6 @@
-# Work In Progress 👨‍💻
+# Vault-renovator
 
-This repository will become a Docker image for the automatic Vault token
-renewal. I work hard to finish it ASAP as I really need this in my production infrastructure 😂
+[![](https://images.microbadger.com/badges/image/ackee/vault-renovator.svg)](https://microbadger.com/images/ackee/vault-renovator "Get your own image badge on microbadger.com")
 
 ## Current status
 At the moment we're in the "functional preview" phase. It does its job but it has to be under
