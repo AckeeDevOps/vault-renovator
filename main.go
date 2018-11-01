@@ -9,7 +9,7 @@ import(
   "encoding/json"
   "github.com/nlopes/slack"
   "github.com/jessevdk/go-flags"
-  "github.com/vranystepan/vault-renovator/renovator"
+  "github.com/AckeeDevOps/vault-renovator/renovator"
 )
 
 type TokenFileNames struct {
